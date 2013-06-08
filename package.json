@@ -2,6 +2,10 @@
   "name": "webrtc-sample",
   "version": "0.0.1",
   "dependencies": {
+    "ws": "0.4.x",
+    "coffee-script": "1.6.x",
+    "coffeelint": "0.5.6",
+    "sty": "0.6.x"
   },
   "engines": {
     "node": "0.10.x",
