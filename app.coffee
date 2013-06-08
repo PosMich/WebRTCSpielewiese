@@ -13,8 +13,11 @@ server = http.createServer((req, res) ->
 
 wss = new WebSocketServer(server: server)
 wss.on "connection", (ws) ->
-    debug.info "new ws connection"
+    debug.info "new ws connection from "
     ws.on "close", ->
-        debug.info "ws connection closed"
+        debug.info "ws connection closed "
+
     ws.on "message", (msg) ->
         debug.info 'ws received: '+msg
+        for client in ws.clients
+            client.send msg.utf8Data
