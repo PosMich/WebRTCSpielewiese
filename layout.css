@@ -1,0 +1,34 @@
+body {
+	font-family: Arial;
+	font-size: 0.9em;
+	margin: 0;
+	padding: 0;
+}
+
+video {
+	border: 1px solid #000;
+	float: left;
+	margin: 50px;
+}
+
+.clear {
+	clear:both;
+}
+
+#container {
+	width: 80%;
+	margin: 100px auto;
+}
+
+.controls {
+	width: 200px;	
+	margin: auto;
+}
+
+button {
+	margin: 20px;
+}
+
+#media {
+	width: 85%; margin: auto;
+}
