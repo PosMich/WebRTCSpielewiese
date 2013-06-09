@@ -36,16 +36,7 @@ function onIceCandidate(event) {
 
 
 
-/****   STEP 3: obtaining local media      ****/
 
-try {
-    getUserMedia(mediaConstraints, onUserMediaSuccess, onUserMediaError);
-
-    console.log('Requested access to local media with mediaConstraints:\n\\' + JSON.stringify(mediaConstraints) + '\'');
-} catch (e) {
-    alert('getUserMedia() failed. Is this a WebRTC capable browser?');
-    console.log('getUserMedia failed with exception: ' + e.message);
-}
 
 
 function onUserMediaSuccess(stream) {
@@ -107,6 +98,16 @@ function setLocalAndSendMessage(sessionDescription) {
 
 socket.onopen = function() {
     console.log("socket connection established");
+    /****   STEP 3: obtaining local media      ****/
+
+    try {
+        getUserMedia(mediaConstraints, onUserMediaSuccess, onUserMediaError);
+
+        console.log('Requested access to local media with mediaConstraints:\n\\' + JSON.stringify(mediaConstraints) + '\'');
+    } catch (e) {
+        alert('getUserMedia() failed. Is this a WebRTC capable browser?');
+        console.log('getUserMedia failed with exception: ' + e.message);
+    }
 };
 
 socket.onmessage = function(message) {
