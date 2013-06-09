@@ -17,17 +17,7 @@ var sdpConstraints = {'mandatory': {
 socket = new WebSocket( 'ws://' + serverUri );
 
 
-/****   STEP 2: create PeerConnection      ****/
-try {
-    // Create an RTCPeerConnection via the polyfill (adapter.js).
-    pc = new RTCPeerConnection(pcConfig);
-    pc.onicecandidate = onIceCandidate;
-    console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig));
-} catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message);
-    alert('Cannot create RTCPeerConnection object; WebRTC is not supported by this browser.');
-    return;
-}
+
 
 function onIceCandidate(event) {
     if (event.candidate) {
@@ -64,6 +54,18 @@ function onUserMediaSuccess(stream) {
     localStream = stream;
 
     console.log('Adding local stream.');
+    /****   STEP 2: create PeerConnection      ****/
+    try {
+        // Create an RTCPeerConnection via the polyfill (adapter.js).
+        pc = new RTCPeerConnection(pcConfig);
+        pc.onicecandidate = onIceCandidate;
+        console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig));
+    } catch (e) {
+        console.log('Failed to create PeerConnection, exception: ' + e.message);
+        alert('Cannot create RTCPeerConnection object; WebRTC is not supported by this browser.');
+        return;
+    }
+
     pc.addStream(localStream);
 }
 
