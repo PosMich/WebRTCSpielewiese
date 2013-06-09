@@ -51,7 +51,7 @@ $(function() {
         console.log("Created local peer connection object pc1");
         pc1.onicecandidate = iceCallback1;
         pc1.onaddstream = gotRemoteStream;
-
+        pc1.addStream(localstream);
 
         //window.pc2 = new webkitRTCPeerConnection(servers);
         //console.log("Created remote peer connection object pc2");
@@ -109,13 +109,24 @@ $(function() {
 
     ws.onmessage = function(evt) {
         var data = evt.data;
-        data = JSON.parse(data);
+        try {
+            data = JSON.parse(data);
+         } catch (e) {
+            console.log(e);
+        }
+
+        console.log(data);
+
         switch(data.type) {
             case "ice":
+                if (data.content==null)
+                    break;
                 console.log("addIceCandidate");
                 pc1.addIceCandidate(new RTCIceCandidate(data.content));
                 break;
             case "sdp":
+                if (data.content==null)
+                    break;
                 console.log("sdp");
                 pc1.setRemoteDescription(data.content);
                 break;
