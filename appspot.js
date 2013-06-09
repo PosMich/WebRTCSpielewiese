@@ -1,7 +1,5 @@
 $(function () {
-
-function init(initVal) {
-    var localVideo;
+var localVideo;
     // var miniVideo;
     var remoteVideo;
     var localStream;
@@ -36,6 +34,10 @@ function init(initVal) {
     var me = '41609730';
     var roomKey = '68951688';
 
+
+function init(initVal) {
+
+    initiator = initVal;
     localVideo = $( "#self" )[0];
     localVideo.autoplay = true;
 
@@ -95,8 +97,6 @@ function init(initVal) {
 
     signalingReady = initiator;
 
-
-
     /*    STEP 2: obtain local media      */
 
     doGetUserMedia();
@@ -104,9 +104,10 @@ function init(initVal) {
     /*    STEP 3: create PeerConnection   */
     createPeerConnection();
 
+}
 
 
-    function resetStatus() {
+ function resetStatus() {
         if (!initiator) {
             setStatus('Waiting for someone to join: <a href=' + roomLink + '>' + roomLink + '</a>');
         } else {
@@ -123,6 +124,7 @@ function init(initVal) {
     function openChannel() {
     }
 
+
     function maybeStart() {
         console.log("maybeStart");
         console.log("started: "+started);
@@ -131,11 +133,11 @@ function init(initVal) {
         console.log("channelReady: "+channelReady);
         console.log("turnDone: "+turnDone);
 
-        if (!started && signalingReady && localStream && channelReady && turnDone) {
+        if ( signalingReady && localStream && channelReady && turnDone) {
             console.log("try");
             setStatus('Connecting...');
-            console.log('Creating PeerConnection.');
-            createPeerConnection();
+            //console.log('Creating PeerConnection.');
+            //createPeerConnection();
             console.log('Adding local stream.');
             pc.addStream(localStream);
             started = true;
@@ -146,6 +148,7 @@ function init(initVal) {
                 calleeStart();
         }
     }
+
 
     function createPeerConnection() {
         try {
@@ -264,13 +267,13 @@ function init(initVal) {
         if (message.type === 'offer') {
             // Set Opus in Stereo, if stereo enabled.
             // if (stereo)
-            //	message.sdp = addStereo(message.sdp);
+            //  message.sdp = addStereo(message.sdp);
             pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
             doAnswer();
         } else if (message.type === 'answer') {
             // Set Opus in Stereo, if stereo enabled.
             // if (stereo)
-            //		message.sdp = addStereo(message.sdp);
+            //      message.sdp = addStereo(message.sdp);
             pc.setRemoteDescription(new RTCSessionDescription(message));
         } else if (message.type === 'candidate') {
             var candidate = new RTCIceCandidate({sdpMLineIndex: message.label,
@@ -358,12 +361,13 @@ function init(initVal) {
         alert('Failed to get access to local media. Error code was ' + error.code + '.');
     }
 
-}
-
     $("#start").click(function() {
         init(1);
     });
     $("#client").click(function() {
         init(0);
+    });
+    $("#call").click(function() {
+        maybeStart()
     });
 })
