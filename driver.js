@@ -7,6 +7,7 @@ var socket;
 var serverUri = "werbrtcspielewiese.posmich.c9.io/";
 
 var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+var connection = { 'optional': [{'DtlsSrtpKeyAgreement': true}, {'RtpDataChannels': true }] };
 
 var offerConstraints = {"optional": [], "mandatory": {'OfferToReceiveAudio' : false,'OfferToReceiveVideo' : true }};
 
@@ -71,7 +72,7 @@ socket.onopen = function() {
     /****   STEP 2: create PeerConnection      ****/
     try {
         // Create an RTCPeerConnection via the polyfill (adapter.js).
-        pc = new RTCPeerConnection(pcConfig);
+        pc = new RTCPeerConnection(pcConfig, connection);
         pc.onicecandidate = onIceCandidate;
 
         console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig) + '\';\n');
@@ -83,10 +84,21 @@ socket.onopen = function() {
 
     pc.onaddstream = onRemoteStreamAdded;
     pc.onremovestream = onRemoteStreamRemoved;
-    controlChannel = pc.createDataChannel("control");
-    setInterval(function(){
-        controlChannel.send("asdfasdf");
-    }, 500);
+    pc.onconnection = function() {
+        controlChannel = pc.webkitCreateDataChannel("control", {reliable:false});
+
+        controlChannel.onopen = function() {
+            console.log("controlChannel opened");
+            setInterval(function(){
+                controlChannel.send("asdfasdf");
+            }, 500);
+        };
+
+        controlChannel.onclose = function() {
+            console.log("controlChannel closed");
+        };
+    };
+
     doCall();
 };
 

@@ -6,6 +6,7 @@ var serverUri = "werbrtcspielewiese.posmich.c9.io/";
 var controlChannel;
 
 var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+var connection = { 'optional': [{'DtlsSrtpKeyAgreement': true}, {'RtpDataChannels': true }] };
 
 var mediaConstraints = {"audio": false, "video": true};
 
@@ -58,7 +59,7 @@ function onUserMediaSuccess(stream) {
     /****   STEP 2: create PeerConnection      ****/
     try {
         // Create an RTCPeerConnection via the polyfill (adapter.js).
-        pc = new RTCPeerConnection(pcConfig);
+        pc = new RTCPeerConnection(pcConfig, connection);
         pc.onicecandidate = onIceCandidate;
         console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig));
     } catch (e) {
@@ -67,7 +68,16 @@ function onUserMediaSuccess(stream) {
         return;
     }
 
-    controlChannel = pc.createDataChannel("control");
+    controlChannel = pc.createDataChannel("control", {reliable:false});
+
+    controlChannel.onopen = function() {
+        console.log("controlChannel opened");
+    };
+
+    controlChannel.onclose = function() {
+         console.log("controlChannel closed");
+    };
+
     controlChannel.onmessage = control;
     pc.addStream(localStream);
 }
