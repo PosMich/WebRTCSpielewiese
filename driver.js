@@ -15,21 +15,6 @@ var offerConstraints = {"optional": [], "mandatory": {'OfferToReceiveAudio' : fa
 socket = new WebSocket( 'ws://' + serverUri );
 
 
-/****   STEP 2: create PeerConnection      ****/
-try {
-    // Create an RTCPeerConnection via the polyfill (adapter.js).
-    pc = new RTCPeerConnection(pcConfig);
-    pc.onicecandidate = onIceCandidate;
-
-    console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig) + '\';\n');
-} catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message);
-    alert('Cannot create RTCPeerConnection object; WebRTC is not supported by this browser.');
-    return;
-}
-
-pc.onaddstream = onRemoteStreamAdded;
-pc.onremovestream = onRemoteStreamRemoved;
 
 function onIceCandidate(event) {
     if (event.candidate && sendIce) {
@@ -84,6 +69,22 @@ function setLocalAndSendMessage(sessionDescription) {
 
 socket.onopen = function() {
     console.log("socket connection established");
+    /****   STEP 2: create PeerConnection      ****/
+    try {
+        // Create an RTCPeerConnection via the polyfill (adapter.js).
+        pc = new RTCPeerConnection(pcConfig);
+        pc.onicecandidate = onIceCandidate;
+
+        console.log('Created RTCPeerConnnection with:\n  config: \'' + JSON.stringify(pcConfig) + '\';\n');
+    } catch (e) {
+        console.log('Failed to create PeerConnection, exception: ' + e.message);
+        alert('Cannot create RTCPeerConnection object; WebRTC is not supported by this browser.');
+        return;
+    }
+
+    pc.onaddstream = onRemoteStreamAdded;
+    pc.onremovestream = onRemoteStreamRemoved;
+
     doCall();
 };
 

@@ -6,7 +6,7 @@ var serverUri = "werbrtcspielewiese.posmich.c9.io/";
 
 var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
-var mediaConstraints = {"audio": false, "video": {"mandatory": {}, "optional": []}};
+var mediaConstraints = {"audio": false, "video": true};
 
 var sdpConstraints = {'mandatory': {
   'OfferToReceiveAudio' : false,
