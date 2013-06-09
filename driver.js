@@ -52,6 +52,7 @@ function onRemoteStreamAdded(event) {
 }
 
 function waitForRemoteVideo() {
+    console.log("wait for remote video");
     // Call the getVideoTracks method via adapter.js.
     videoTracks = remoteStream.getVideoTracks();
     if (videoTracks.length === 0 || remoteVideo.currentTime > 0) {
