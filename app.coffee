@@ -9,6 +9,9 @@ server = http.createServer((req, res) ->
     debug.info "Server started "+process.env.IP+":"+process.env.PORT
 )
 
+var carList = {};
+
+var clientList = {};
 
 
 wss = new WebSocketServer(server: server)
@@ -27,19 +30,34 @@ wss.on "connection", (ws) ->
 
         try
             switch msg.type
-                when "kill" then ...
-                when "drive" then ...
-                when "spd" then ...
-                when "ice" then ...
-                when "exit" then ...
+                when "kill"
+                    debug.info "login kill!!!"
+                    debug.info "id: "+id
+                    debug.info "pw: "+pw
+                when "drive"
+                    debug.info "login drive!!!"
+                    debug.info "id: "+id
+                    debug.info "pw: "+pw
+                when "sdp"
+                    debug.info "sdp msg!!!"
+                    debug.info "msg: "
+                    console.log msg.content
+                when "ice"
+                    debug.info "ice msg!!!"
+                    debug.info "msg: "
+                    console.log msg.content
+                when "exit"
+                    debug.info "exit msg"
+                else
+                    debug.error "wasn't able to detect type of msg: "+msg.type
         catch e
             debug.error
 
-
+###
         for client in ws.clients
             client.send msg.utf8Data
 
-###
+
 db:
     car list
         id          string
@@ -57,12 +75,11 @@ db:
                 id:   id
                 type: drive/kill
                 pw:   passphrase
-            spd/ice
+            sdp/ice
                 type: spd/ice
-                msg
+                content
             exit
                 type: exit
-                msg
 
         server --> client
             spd/ice
