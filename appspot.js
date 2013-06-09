@@ -76,7 +76,7 @@
         maybeStart();
       };
 
-      socket.onmessage = function() {
+      socket.onmessage = function(message) {
         console.log('S->C: ' + message.data);
         var msg = JSON.parse(message.data);
         // Since the turn response is async and also GAE might disorder the
@@ -115,9 +115,14 @@
 
   	function maybeStart() {
       console.log("maybeStart");
+      console.log("started: "+started);
+      console.log("signalingReady: "+signalingReady);
+      console.log("localStream: "+localStream);
+      console.log("channelReady: "+channelReady);
+      console.log("turnDone: "+turnDone);
     	if (!started && signalingReady &&
         	localStream && channelReady && turnDone) {
-
+          console.log("try");
       		setStatus('Connecting...');
       		console.log('Creating PeerConnection.');
       		createPeerConnection();
