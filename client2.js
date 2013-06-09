@@ -1,111 +1,61 @@
 
 $(function() {
     var localstream;
+    var pc;
 
     var vid1 = document.getElementById("self");
+    vid1.autoplay = true;
     var vid2 = document.getElementById("remote");
+    vid2.autoplay = true;
     var serverUri = "werbrtcspielewiese.posmich.c9.io/";
-    // var serverUri = "localhost";
-    // var serverPort = 8080;
-
 
     var ws = new WebSocket("ws://" + serverUri);
+    var servers = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
-    function gotStream(stream){
-        console.log("Received local stream");
-        vid1.autoplay = true;
-        vid1.src = webkitURL.createObjectURL(stream);
-        //$("#self").attr("src",webkitURL.createObjectURL(stream));
-        localstream = stream;
-    }
+    // run start(true) to initiate a call
+    function start(isCaller) {
+        pc = new webkitRTCPeerConnection(servers);
 
-    function start() {
-        console.log("Requesting local stream");
-        navigator.webkitGetUserMedia({audio:true, video:true},gotStream, function() {});
-    }
+        // send any ice candidates to the other peer
+        pc.onicecandidate = function (evt) {
+            ws.send(JSON.stringify({type: "ice", content: evt.candidate }));
+        };
 
-    function call() {
-        console.log("Starting call");
+        // once remote stream arrives, show it in the remote video element
+        pc.onaddstream = function (evt) {
+            vid2.src = URL.createObjectURL(evt.stream);
+        };
 
-        // temporary hacks to cope with API change
-        if (!!localstream.videoTracks && !localstream.getVideoTracks) {
-            localstream.getVideoTracks = function(){
-                return this.videoTracks;
+        // get the local stream, show it in the local video element and send it
+        navigator.webkitGetUserMedia({ "audio": true, "video": true }, function (stream) {
+            vid1.src = URL.createObjectURL(stream);
+            pc.addStream(stream);
+
+            if (isCaller)
+                pc.createOffer(gotDescription);
+            else
+                pc.createAnswer(pc.remoteDescription, gotDescription);
+
+            function gotDescription(desc) {
+                pc.setLocalDescription(desc);
+                ws.send(JSON.stringify({type: "sdp", content: desc }));
             }
-        }
-        if (!!localstream.audioTracks && !localstream.getAudioTracks) {
-            localstream.getAudioTracks = function(){
-                return this.audioTracks;
-            }
-        }
-        ///////////////////////////////////////////
-
-        if (localstream.getVideoTracks().length > 0)
-            console.log('Using Video device: ' + localstream.getVideoTracks()[0].label);
-        if (localstream.getAudioTracks().length > 0)
-            console.log('Using Audio device: ' + localstream.getAudioTracks()[0].label);
-
-        var servers = { iceServers: [{ url: "stun:stun.l.google.com:19302" }] };
-
-        window.pc1 = new webkitRTCPeerConnection(servers);
-        console.log("Created local peer connection object pc1");
-        pc1.onicecandidate = iceCallback1;
-        pc1.onaddstream = gotRemoteStream;
-        pc1.addStream(localstream);
-
-        //window.pc2 = new webkitRTCPeerConnection(servers);
-        //console.log("Created remote peer connection object pc2");
-        //pc2.onicecandidate = iceCallback2;
-        //pc2.onaddstream = gotRemoteStream;
-
-        //pc1.addStream(localstream);
-        //console.log("Adding Local Stream to peer connection");
-
-        pc1.createOffer(gotDescription1);
+        });
     }
 
-    function gotDescription1(desc){
-        pc1.setLocalDescription(desc);
-        console.log("Offer from pc1 to pc2 \n" + desc);
-        ws.send(JSON.stringify({type:"sdp", content:desc}));
-        //pc2.setRemoteDescription(desc);
-        //pc2.createAnswer(gotDescription2);
-    }
+    ws.onmessage = function (evt) {
+        if (!pc)
+            start(false);
 
-    // function gotDescription2(desc){
-    //     pc2.setLocalDescription(desc);
-    //     console.log("Answer from pc2 \n" + desc.sdp);
-    //     pc1.setRemoteDescription(desc);
-    // }
+        var signal = JSON.parse(evt.data);
+        if (signal.sdp)
+            pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        else
+            pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+    };
 
-    function hangup() {
-        console.log("Ending call");
-        pc1.close();
-        //pc2.close();
-        pc1 = null;
-        //pc2 = null;
-    }
 
-    function gotRemoteStream(e){
-        vid2.src = webkitURL.createObjectURL(e.stream);
-        console.log("Received remote stream");
-    }
-
-    function iceCallback1(event){
-        ws.send(JSON.stringify({type:"ice", content: event.candidate}));
-        /*
-        if (event.candidate) {
-            pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
-            console.log("Local ICE candidate: \n" + event.candidate.candidate);
-        }*/
-    }
-
-    // function iceCallback2(event){
-    //     if (event.candidate) {
-    //         pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
-    //         console.log("Remote ICE candidate: \n " + event.candidate.candidate);
-    //     }
-    // }
+/*
 
     ws.onmessage = function(evt) {
         var data = evt.data;
@@ -134,11 +84,11 @@ $(function() {
                 break;
         }
     }
-
+*/
     $("#start").click(function() {
-        start();
+        start(false);
     });
     $("#call").click(function() {
-        call();
+        start(true);
     });
 });
