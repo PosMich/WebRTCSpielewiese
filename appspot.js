@@ -246,10 +246,7 @@ function sendMessage(message) {
 }
 
 function processSignalingMessage(message) {
-    if (!started) {
-        console.log('peerConnection has not been created yet!');
-        return;
-    }
+
 
     if (message.type === 'offer') {
         // Set Opus in Stereo, if stereo enabled.
