@@ -59,50 +59,56 @@
 	    }
 	}
 
+  function websocket() {
+
+  }
+
 	function setStatus(state) {
     	document.getElementById('footer').innerHTML = state;
   	}
 
-  	function openChannel() {
-    	console.log('Opening channel.');
-    	socket = new WebSocket( 'ws://' + serverUri );
+      console.log('Opening channel.');
+      socket = new WebSocket( 'ws://' + serverUri );
 
-    	socket.onopen = function() {
-    		console.log('Channel opened.');
-		    channelReady = true;
-		    maybeStart();
-    	};
+      socket.onopen = function() {
+        console.log('Channel opened.');
+        channelReady = true;
+        maybeStart();
+      };
 
-    	socket.onmessage = function() {
-		    console.log('S->C: ' + message.data);
-		    var msg = JSON.parse(message.data);
-		    // Since the turn response is async and also GAE might disorder the
-		    // Message delivery due to possible datastore query at server side,
-		    // So callee needs to cache messages before peerConnection is created.
-		    if (!initiator && !started) {
-		      	if (msg.type === 'offer') {
+      socket.onmessage = function() {
+        console.log('S->C: ' + message.data);
+        var msg = JSON.parse(message.data);
+        // Since the turn response is async and also GAE might disorder the
+        // Message delivery due to possible datastore query at server side,
+        // So callee needs to cache messages before peerConnection is created.
+        if (!initiator && !started) {
+            if (msg.type === 'offer') {
               console.log("offer");
-		        	// Add offer to the beginning of msgQueue, since we can't handle
-		        	// Early candidates before offer at present.
-		        	msgQueue.unshift(msg);
-		        	// Callee creates PeerConnection
-		        	signalingReady = true;
-		        	maybeStart();
-		      	} else {
-		        	msgQueue.push(msg);
-		      	}
-		    } else {
-		      	processSignalingMessage(msg);
-		    }
-    	};
+              // Add offer to the beginning of msgQueue, since we can't handle
+              // Early candidates before offer at present.
+              msgQueue.unshift(msg);
+              // Callee creates PeerConnection
+              signalingReady = true;
+              maybeStart();
+            } else {
+              msgQueue.push(msg);
+            }
+        } else {
+            processSignalingMessage(msg);
+        }
+      };
 
-    	socket.onerror = function() {
-    		console.log('Channel error.');
-  		};
+      socket.onerror = function() {
+        console.log('Channel error.');
+      };
 
-  		socket.onclose = function() {
-    		console.log('Channel closed.');
-  		};
+      socket.onclose = function() {
+        console.log('Channel closed.');
+      };
+
+  	function openChannel() {
+
 
 
   	}
