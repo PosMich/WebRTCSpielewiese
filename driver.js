@@ -84,19 +84,18 @@ socket.onopen = function() {
 
     pc.onaddstream = onRemoteStreamAdded;
     pc.onremovestream = onRemoteStreamRemoved;
-    pc.onconnection = function() {
-        controlChannel = pc.webkitCreateDataChannel("control", {reliable:false});
 
-        controlChannel.onopen = function() {
-            console.log("controlChannel opened");
-            setInterval(function(){
-                controlChannel.send("asdfasdf");
-            }, 500);
-        };
+    controlChannel = pc.createDataChannel("control", {reliable:false});
 
-        controlChannel.onclose = function() {
-            console.log("controlChannel closed");
-        };
+    controlChannel.onopen = function() {
+        console.log("controlChannel opened");
+        setInterval(function(){
+            controlChannel.send("asdfasdf");
+        }, 500);
+    };
+
+    controlChannel.onclose = function() {
+        console.log("controlChannel closed");
     };
 
     doCall();

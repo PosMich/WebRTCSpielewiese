@@ -80,6 +80,7 @@ function onUserMediaError(error) {
 
 
 function control(event) {
+    console.log("controlChannel message received: "+event.data);
     var msg = event.data;
     var html = $("#data").html();
     $("#data").html(html+"<br>"+msg);
