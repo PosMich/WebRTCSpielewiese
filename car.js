@@ -106,6 +106,7 @@ function setLocalAndSendMessage(sessionDescription) {
 
 
 socket.onopen = function() {
+    console.log("socket connection established");
 };
 
 socket.onmessage = function(message) {
