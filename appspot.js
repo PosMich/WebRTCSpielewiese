@@ -81,6 +81,7 @@
 		    // So callee needs to cache messages before peerConnection is created.
 		    if (!initiator && !started) {
 		      	if (msg.type === 'offer') {
+              console.log("offer");
 		        	// Add offer to the beginning of msgQueue, since we can't handle
 		        	// Early candidates before offer at present.
 		        	msgQueue.unshift(msg);
@@ -107,7 +108,7 @@
   	}
 
   	function maybeStart() {
-
+      console.log("maybeStart");
     	if (!started && signalingReady &&
         	localStream && channelReady && turnDone) {
 
@@ -215,7 +216,11 @@
     	// Set Opus as the preferred codec in SDP if Opus is present.
     	// sessionDescription.sdp = preferOpus(sessionDescription.sdp);
     	pc.setLocalDescription(sessionDescription);
-    	sendMessage(sessionDescription);
+      if (initiator) {
+    	   sendMessage({type:"offer",sdp:sessionDescription});
+       } else {
+          sendMessage({type:"answer",sdp:sessionDescription});
+       }
   	}
 
   	function sendMessage(message) {
@@ -240,7 +245,7 @@
       		// Set Opus in Stereo, if stereo enabled.
       		// if (stereo)
         	//	message.sdp = addStereo(message.sdp);
-  			pc.setRemoteDescription(new RTCSessionDescription(message));
+  			pc.setRemoteDescription(new RTCSessionDescription(message.sdp));
   			doAnswer();
     	} else if (message.type === 'answer') {
       		// Set Opus in Stereo, if stereo enabled.
