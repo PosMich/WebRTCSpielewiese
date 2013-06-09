@@ -1,6 +1,7 @@
 
 var localStream;
 var remoteVideo = document.getElementById("remote");
+var controlChannel;
 var pc;
 var socket;
 var serverUri = "werbrtcspielewiese.posmich.c9.io/";
@@ -82,7 +83,10 @@ socket.onopen = function() {
 
     pc.onaddstream = onRemoteStreamAdded;
     pc.onremovestream = onRemoteStreamRemoved;
-
+    controlChannel = pc.createDataChannel("control");
+    setInterval(function(){
+        controlChannel.send("asdfasdf");
+    }, 500);
     doCall();
 };
 

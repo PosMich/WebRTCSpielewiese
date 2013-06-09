@@ -3,6 +3,7 @@ var localVideo = document.getElementById("self");
 var pc;
 var socket;
 var serverUri = "werbrtcspielewiese.posmich.c9.io/";
+var controlChannel;
 
 var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
@@ -66,6 +67,8 @@ function onUserMediaSuccess(stream) {
         return;
     }
 
+    controlChannel = pc.createDataChannel("control");
+    controlChannel.onmessage = control;
     pc.addStream(localStream);
 }
 
@@ -75,6 +78,11 @@ function onUserMediaError(error) {
 }
 
 
+function control(event) {
+    var msg = event.data;
+    var html = $("#data").html();
+    $("#data").html(html+"<br>"+msg);
+}
 
 
 
