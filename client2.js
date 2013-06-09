@@ -66,8 +66,8 @@ $(function() {
 
     function gotDescription1(desc){
         pc1.setLocalDescription(desc);
-        console.log("Offer from pc1 \n" + desc);
-        ws.send({type:"sdp", content:"desc"});
+        console.log("Offer from pc1 to pc2 \n" + desc);
+        ws.send(JSON.stringify({type:"sdp", content:desc}));
         //pc2.setRemoteDescription(desc);
         //pc2.createAnswer(gotDescription2);
     }
@@ -92,7 +92,7 @@ $(function() {
     }
 
     function iceCallback1(event){
-        ws.send({type:"ice", content: event.candidate});
+        ws.send(JSON.stringify({type:"ice", content: event.candidate}));
         /*
         if (event.candidate) {
             pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
@@ -107,6 +107,22 @@ $(function() {
     //     }
     // }
 
+    ws.onmessage = function(evt) {
+        var data = evt.data;
+        data = JSON.parse(data);
+        switch(data.type) {
+            case "ice":
+                console.log("addIceCandidate");
+                pc1.addIceCandidate(new RTCIceCandidate(data.content));
+                break;
+            case "sdp":
+                console.log("sdp");
+                pc1.setRemoteDescription(data.content);
+                break;
+            default:
+                break;
+        }
+    }
 
     $("#start").click(function() {
         start();
