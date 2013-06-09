@@ -5,8 +5,6 @@ var pc;
 var socket;
 var serverUri = "werbrtcspielewiese.posmich.c9.io/";
 
-var sendIce = false;
-
 var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
 var offerConstraints = {"optional": [], "mandatory": {'OfferToReceiveAudio' : false,'OfferToReceiveVideo' : true }};
@@ -17,7 +15,7 @@ socket = new WebSocket( 'ws://' + serverUri );
 
 
 function onIceCandidate(event) {
-    if (event.candidate && sendIce) {
+    if (event.candidate) {
         sendMessage({type: 'candidate',
         label: event.candidate.sdpMLineIndex,
         id: event.candidate.sdpMid,
