@@ -34,7 +34,7 @@ $(function() {
             if (isCaller)
                 pc.createOffer(gotDescription);
             else
-                pc.createAnswer(pc.remoteDescription, gotDescription);
+                pc.createAnswer(decodeURIComponent(encodeURIComponent(pc.remoteDescription)), gotDescription);
 
             function gotDescription(desc) {
                 pc.setLocalDescription(desc);
