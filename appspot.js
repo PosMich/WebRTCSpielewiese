@@ -1,4 +1,4 @@
-var localVideo;
+  var localVideo;
 	// var miniVideo;
 	var remoteVideo;
 	var localStream;
@@ -13,6 +13,11 @@ var localVideo;
 	var channelReady = false;
 	var signalingReady = false;
 
+  var roomLink = "asdf324"
+
+    var serverUri = "werbrtcspielewiese.posmich.c9.io/";
+
+
 	var msgQueue = [];
 
 	var sdpConstraints = {'mandatory': {
@@ -21,22 +26,23 @@ var localVideo;
 	}};
 
 	var initiator = 0;
-  	var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-  	var pcConstraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]};
-  	var offerConstraints = {"optional": [], "mandatory": {}};
+	var pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+	var pcConstraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]};
+	var offerConstraints = {"optional": [], "mandatory": {}};
 	var mediaConstraints = {"audio": false, "video": {"mandatory": {}, "optional": []}};
   	// var turnUrl = '';
-  	var me = '41609730';
-  	var roomKey = '68951688';
+	var me = '41609730';
+	var roomKey = '68951688';
 
 	function initialize() {
 		localVideo = $( "#self" )[0];
+    localVideo.autoplay = true;
 		localVideo.addEventListener( 'loadedmetadata', function() {
-			window.onresize();
+			//window.onresize();
 		});
 
 		remoteVideo = $( "#remote" )[0];
-
+    remoteVideo.autoplay = true;
 		resetStatus();
 		openChannel();
 		// maybeRequestTurn();
@@ -61,13 +67,13 @@ var localVideo;
     	console.log('Opening channel.');
     	socket = new WebSocket( 'ws://' + serverUri );
 
-    	socket.on( "open", function() {
+    	socket.onopen = function() {
     		console.log('Channel opened.');
 		    channelReady = true;
 		    maybeStart();
-    	});
+    	};
 
-    	socket.on( "message", function() {
+    	socket.onmessage = function() {
 		    console.log('S->C: ' + message.data);
 		    var msg = JSON.parse(message.data);
 		    // Since the turn response is async and also GAE might disorder the
@@ -86,15 +92,16 @@ var localVideo;
 		      	}
 		    } else {
 		      	processSignalingMessage(msg);
-		    }    		
-    	});
+		    }
+    	};
 
-    	socket.on("error", function() {
+    	socket.onerror = function() {
     		console.log('Channel error.');
-  		});
-  		socket.on( "close", function() {
+  		};
+
+  		socket.onclose = function() {
     		console.log('Channel closed.');
-  		});
+  		};
 
 
   	}
@@ -103,7 +110,7 @@ var localVideo;
 
     	if (!started && signalingReady &&
         	localStream && channelReady && turnDone) {
-      		
+
       		setStatus('Connecting...');
       		console.log('Creating PeerConnection.');
       		createPeerConnection();
@@ -175,7 +182,7 @@ var localVideo;
     	setTimeout(function() { localVideo.src = ''; }, 500);
     	setTimeout(function() { remoteVideo.style.opacity = 1; }, 1000);
     	// Reset window display according to the asperio of remote video.
-    	window.onresize();
+    	//window.onresize();
     	setStatus('<input type=\'button\' id=\'hangup\' value=\'Hang up\' \
         	      onclick=\'onHangup()\' />');
   	}
@@ -214,12 +221,13 @@ var localVideo;
   	function sendMessage(message) {
     	var msgString = JSON.stringify( message );
     	console.log('C->S: ' + msgString);
+      socket.send(msgString);
     	// NOTE: AppRTCClient.java searches & parses this line; update there when
     	// changing here.
-    	path = '/message?r=' + roomKey + '&u=' + me;
+    	/*path = '/message?r=' + roomKey + '&u=' + me;
     	var xhr = new XMLHttpRequest();
     	xhr.open('POST', path, true);
-    	xhr.send(msgString);
+    	xhr.send(msgString);*/
   	}
 
   	function processSignalingMessage(message) {
@@ -327,3 +335,14 @@ var localVideo;
     	alert('Failed to get access to local media. Error code was ' +
           			error.code + '.');
   	}
+
+$(function() {
+    $("#start").click(function() {
+      initiator = 1;
+      initialize();
+    })
+    $("#client").click(function() {
+      initiator = 0;
+      initialize();
+    })
+})
